@@ -1,8 +1,10 @@
 
 import {AudioVisualizer} from "../audiovisualizer.js";
 
-var av = new AudioVisualizer({
-    //src: "sinus800hz-10db.mp3",
+/*
+    Generates visualizations using the standard configurations.
+ */
+new AudioVisualizer({ // no src, uses the microphone
     v: [
         {
             type: "spectrum",

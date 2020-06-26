@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="de">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="fjw">
+
+    <title>Customized Visualizations... Weeeee....</title>
+
+    <style >
+        body {
+            display: flex;
+            flex-flow: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            margin: auto;
+        }
+
+        .buttons>div {
+            margin: auto;
+            width: 600px;
+            display: flex;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+        }
+
+        .buttons>div>div {
+            text-align: center;
+            cursor: pointer;
+            margin: 5px;
+            background: #fff;
+            color: #08f;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: "Roboto Light", sans-serif;
+            flex: 1;
+            user-select: none;
+        }
+
+        .buttons>div>div:hover {
+            background: #f3f3f3;
+            color: #06f;
+        }
+    </style>
+
+</head>
+<body>
+
+
+<div style="flex-grow: 1; display: flex">
+    <div class="wave1" style="flex: 1; background: goldenrod"></div>
+    <div class="wave2" style="flex: 1; background: rgb(80,0,80)"></div>
+    <div class="wave3" style="flex: 1; background: #000"></div>
+</div>
+<div style="flex-grow: 2; display: flex">
+    <div class="spectrum1" style="flex: 1; background: #000"></div>
+    <div class="spectrum2" style="flex: 1; background: #f00"></div>
+    <div class="spectrum3" style="flex: 1; background: #ccc"></div>
+</div>
+
+<div class="buttons">
+    <div>
+        <div id="go">play</div>
+        <div id="mute" style="display: none">mute</div>
+        <div id="unmute" style="display: none">unmute</div>
+        <div id="next" style="display: none">next</div>
+    </div>
+</div>
+
+<script type="module" src="customized.js"></script>
+
+</body>
+</html>

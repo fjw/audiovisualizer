@@ -3,21 +3,22 @@
 const defaultOptions = {
     background: "rgb(0, 0, 128)",
 
-    lineWidth: 6,
+    lineWidth: 4,
     strokeStyle: "rgb(0,  128, 255)",
 
     rowsPerSec: 40,
+    colortheme: [ "#000080", "#00f", "#0080ff", "#0ff", "#80ff80", "#ff0", "#ff8000", "#f00", "#800000"],
 
-    //colormap: ["rgb(0, 0, 128)", "rgb(0,88,255)", "rgb(255,0,0)"] todo
-    colortheme: [[0, 0, 128], [0, 0, 255], [0,128,255], [0,255,255], [128, 255, 128],
-               [255, 255, 0], [255, 128, 0], [255, 0, 0], [128, 0, 0]]
-
-    //colormap: [ [0,0,0], [128,0,0] ]
+    muted: true
 };
 
 export class AudioVisualizer {
 
     _v = []; // list of visualizations
+    _actx = null;
+    _analyser = null;
+    _source = null;
+    muted = null;
 
     constructor(options) {
 
@@ -25,16 +26,22 @@ export class AudioVisualizer {
         var actx = new (window.AudioContext || window.webkitAudioContext)();
         getStreamSource(actx, options.src).then(source => {
 
-            console.log(source);
-
             var analyser = actx.createAnalyser();
             source.connect(analyser);
-            /*
-            analyser.minDecibels = -90;
-            analyser.maxDecibels = -10;
-             */
-            analyser.smoothingTimeConstant = 0.8; //todo cfg
-            analyser.fftSize = 4096; //todo cfg
+
+            if(options.muted === false || defaultOptions.muted === false) {
+                source.connect(actx.destination);
+                this.muted = false;
+            } else {
+                this.muted = true;
+            }
+
+            if(options.analyser) {
+                for (const [key, value] of Object.entries(options.analyser)) {
+                    analyser[key] = value;
+                }
+            }
+
             var bufferLength = analyser.frequencyBinCount;
             var dataArray = new Uint8Array(bufferLength);
 
@@ -42,7 +49,6 @@ export class AudioVisualizer {
 
             options.v.forEach(o => {
 
-//todo: check required options
                 var vv = {}
                 vv.options = o;
 
@@ -99,7 +105,7 @@ export class AudioVisualizer {
                             v.lag -= rowsToRender;
 
                             analyser.getByteFrequencyData(dataArray);
-                            updateSpectrum(v, bufferLength, dataArray, elapsed, nlImageData, nlCnv, nlCtx, rowsToRender);
+                            updateSpectrum(v, bufferLength, dataArray, nlImageData, nlCnv, nlCtx, rowsToRender);
                         }
 
 
@@ -118,18 +124,86 @@ export class AudioVisualizer {
             // -------
 
             draw();
+
+            this._source = source;
+            this._actx = actx;
+            this._analyser = analyser;
         });
 
+    }
+
+    setSource(newsource) {
+        this._source.disconnect(this._analyser);
+        if(!this.muted) {
+            this._source.disconnect(this._actx.destination);
+        }
+        getStreamSource(this._actx, newsource).then(source => {
+
+            this._source = source;
+            source.connect(this._analyser);
+            if(!this.muted) {
+                source.connect(this._actx.destination);
+            }
+
+        });
+    }
+
+    mute() {
+        if(!this.muted) {
+            this.muted = true;
+            this._source.disconnect(this._actx.destination);
+        }
+    }
+
+    unmute() {
+        if(this.muted) {
+            this.muted = false;
+            this._source.connect(this._actx.destination);
+        }
     }
 
 }
 
 
+/**
+ * Transforms a CSS color like "rgb(1, 2, 3)" or "#f00" into color value array ala [1, 2, 3]
+ *
+ * @param {string} color  CSS color
+ * @returns {[number]}  rgb array [r,g,b]
+ */
 function cssColorToArray(color) {
-    //todo:
+
+    if(color.match(/rgb/)) { // rgb( 1, 2, 3)
+        var c = color.match(/\d+/g);
+        if(c.length !== 3) {
+            console.error("only hex and rgb(r,g,b) colors are allowed");
+        }
+        return c; //c.map(i => parseInt(i)); todo
+    } else if(color.match(/#/)) { // #fff or #ffffff
+        color = color.trim().replace('#', '');
+        if(color.length === 3) {
+            color = color.charAt(0) + color.charAt(0) +
+                    color.charAt(1) + color.charAt(1) +
+                    color.charAt(2) + color.charAt(2);
+        }
+        return [
+            parseInt(color.substring(0,2) ,16),
+            parseInt(color.substring(2,4) ,16),
+            parseInt(color.substring(4,6) ,16)
+        ];
+    }
 }
 
-function colorsInBetween(color1, color2, amount) { //todo docs lastone not included
+
+/**
+ * Gets color values between two colors. [r,g,b]
+ *
+ * @param {[number]} color1  first color
+ * @param {[number]} color2  second color (excluded in the result)
+ * @param {number} amount  amount of color values needed
+ * @returns {[[number]]}  array of colors
+ */
+function colorsInBetween(color1, color2, amount) {
 
     const distancesRGB = [
         Math.abs(color2[0] - color1[0]),
@@ -163,21 +237,30 @@ function colorsInBetween(color1, color2, amount) { //todo docs lastone not inclu
 }
 
 
+/**
+ * Prepares the colormap for rendering. So we have an array 0-255 for all possible values.
+ *
+ * @param {[string]} colortheme  array of css colors
+ * @returns {[[number]]}  array of [r,g,b] colors with 256 elements
+ */
 function prepareColorMap(colortheme) {
 
+    var ct = colortheme.map(cssColorToArray);
+    var distancecount = colortheme.length - 1;
+
     // we need an array with 256 entries
-    const colorAmountPerStep = Math.floor(255 / (colortheme.length - 1));
-    var oneMoreForHowMany = 255 - colorAmountPerStep * (colortheme.length - 1);
+    const colorAmountPerStep = Math.floor(255 / distancecount);
+    var oneMoreForHowMany = 255 - colorAmountPerStep * distancecount;
 
     var colormap = [];
-    for(var i = 0; i < colortheme.length - 1; i++) {
+    for(var i = 0; i < distancecount; i++) {
 
         let amount = colorAmountPerStep;
         if(oneMoreForHowMany > 0) {
             amount++;
             oneMoreForHowMany--;
         }
-        colormap = colormap.concat(colorsInBetween(colortheme[i], colortheme[i+1], amount));
+        colormap = colormap.concat(colorsInBetween(ct[i], ct[i+1], amount));
     }
 
     colormap.push(colortheme[colortheme.length - 1]); // add last color
@@ -185,7 +268,19 @@ function prepareColorMap(colortheme) {
     return colormap;
 }
 
-function updateSpectrum(v, bufferLength, dataArray, elapsed, nlImageData, nlCnv, nlCtx, rowsToRender) {
+
+/**
+ * Draws the spectrum (waterfall graph).
+ *
+ * @param {{}} v                            storage + options of this graph
+ * @param {number} bufferLength             length of data points
+ * @param {Uint8Array} dataArray            data points
+ * @param {ImageData} nlImageData           the image data of the new line
+ * @param {HTMLCanvasElement} nlCnv         the offscreen canvas for the new line
+ * @param {CanvasRenderingContext2D} nlCtx  the context for the new line
+ * @param {number} rowsToRender             the amount of new lines to render
+ */
+function updateSpectrum(v, bufferLength, dataArray, nlImageData, nlCnv, nlCtx, rowsToRender) {
 
     var w = v.cnv.width;
     var h = v.cnv.height;
@@ -209,6 +304,14 @@ function updateSpectrum(v, bufferLength, dataArray, elapsed, nlImageData, nlCnv,
 
 }
 
+
+/**
+ * Draws the waveform.
+ *
+ * @param {{}} v                            storage + options of this graph
+ * @param {number} bufferLength             length of data points
+ * @param {Uint8Array} dataArray            data points
+ */
 function updateWaveform(v, bufferLength, dataArray) {
 
     var w = v.cnv.width;
@@ -243,6 +346,13 @@ function updateWaveform(v, bufferLength, dataArray) {
 
 }
 
+/**
+ * Creates a canvas and fits it into the container. If the container resizes, the fittet canvas is resized, too.
+ * (..without loosing image information)
+ *
+ * @param {string} containerquery  the css query for the container
+ * @returns {{ctx: CanvasRenderingContext2D, cnv: HTMLCanvasElement}}  the context and the canvas
+ */
 function createCanvasInContainer(containerquery) {
 
     const container = document.querySelector(containerquery);
@@ -288,6 +398,14 @@ function createCanvasInContainer(containerquery) {
     return { cnv, ctx };
 }
 
+
+/**
+ * Gets the an audio source for analysing.
+ *
+ * @param {AudioContext} actx  the audio context
+ * @param {undefined|string} src  the url of the source or undefined for microphone
+ * @returns {Promise<MediaStreamAudioSourceNode|MediaElementAudioSourceNode>}
+ */
 function getStreamSource(actx, src) {
     return new Promise((resolve, reject) => {
 
