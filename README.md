@@ -1,5 +1,7 @@
 # audiovisualizer
-a small tool to render spectograms (waterfall) or waveforms from audio in your browser
+a small tool to render spectograms (waterfall graphs) or waveforms from audio in your browser
+
+![audio visuals](examples/screenshot.png "audio visuals")
 
 ### Getting started
 
@@ -28,7 +30,7 @@ new AudioVisualizer({ // no src, uses the microphone
 
 - ```v``` an array of visualizations, each with individual options
 - ```v.type``` the type of the visualization, possible values are ```waveform``` and ```spectrum```
--  ```v.container``` the css selector of the container (HTMLElement) where the canvas gets rendered in,
+- ```v.container``` the css selector of the container (HTMLElement) where the canvas gets rendered in,
 if the container is resized, the canvas will be resized, too.
 
 ### optional options
@@ -46,10 +48,10 @@ for example ```analyser.fftSize: 4096``` increases the resolution (standard is 2
 
 #### spectrum only
 - ```v.rowsPerSec``` speed of the waterfall
-- ```colortheme``` array of colors for the gradients (see examples)
+- ```v.colortheme``` array of colors for the gradients (see [examples](./examples/customized.js))
 
 ### methods
 
 - ```mute()``` mutes the audio
 - ```unmute()``` unmutes the audio
-- ```setSource()``` sets a new audiosource
+- ```setSource(url)``` sets a new audiosource (false/null/undefined = microphone)
