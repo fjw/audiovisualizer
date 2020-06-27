@@ -14,15 +14,15 @@ const goButton = document.querySelector("#go");
 
 var i = 0;
 var sources = [
-    "./frequencies.wav",
+    "./frequencies.mp3",
     "./alternating.mp3",
-    "./ketsa-slow-vibing.mp3"
+    "./music.mp3"
 ];
 
 goButton.addEventListener("click", () => {
 
     var av = new AudioVisualizer({ // no src, uses the microphone
-        src: "./frequencies.wav",
+        src: sources[i],
         muted: false,
         stopped: true,
         analyser: {
