@@ -3,9 +3,9 @@ a small tool to render spectograms (waterfall graphs) or waveforms from audio in
 
 ![audio visuals](examples/screenshot.png "audio visuals")
 
-[Demo 1 (standard config using microphone)](http://toolset.io/audiovisualizer/examples/waveandwater.html)
+[Demo 1 (standard config using microphone)](https://toolset.io/audiovisualizer/examples/waveandwater.html)
 
-[Demo 2 (showing different config possibilities with audio tracks)](http://toolset.io/audiovisualizer/examples/customized.html)
+[Demo 2 (showing different config possibilities with audio tracks)](https://toolset.io/audiovisualizer/examples/customized.html)
 
 ### Getting started
 
