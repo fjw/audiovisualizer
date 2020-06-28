@@ -128,6 +128,8 @@ export class AudioVisualizer {
             this._source = source;
             this._actx = actx;
             this._analyser = analyser;
+        }).catch(error => {
+            console.error(error.name);
         });
 
     }
@@ -145,7 +147,9 @@ export class AudioVisualizer {
                 source.connect(this._actx.destination);
             }
 
-        });
+        }).catch(error => {
+            console.error(error);
+        });;
     }
 
     mute() {
@@ -414,6 +418,8 @@ function getStreamSource(actx, src) {
 
             navigator.mediaDevices.getUserMedia({audio: true} ).then( stream => {
                 resolve(actx.createMediaStreamSource(stream));
+            }).catch(error => {
+                reject(error);
             });
 
         } else {
@@ -424,6 +430,8 @@ function getStreamSource(actx, src) {
             audio.crossOrigin = 'anonymous';
             audio.play().then(a => { //todo: geht das ohne play?
                 resolve(actx.createMediaElementSource(audio));
+            }).catch(error => {
+                reject(error);
             });
 
         }
