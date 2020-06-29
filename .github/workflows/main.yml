@@ -11,15 +11,24 @@ jobs:
   deployforthedemos:    
     runs-on: ubuntu-latest    
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    
     - uses: actions/checkout@v2
+      
+    - name: Rsync Deployments Action
+      uses: Burnett01/rsync-deployments@4.1
+      with:        
+        switches: -avzr --delete             
+        remote_path: /var/www/html/audiovisualizer        
+        remote_host: ${{ secrets.DEPLOY_HOST }}
+        remote_user: ${{ secrets.DEPLOY_USER }}
+        remote_key: ${{ secrets.DEPLOY_KEY }}
 
     # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
+    #- name: Run a one-line script
+    #  run: echo Hello, world!
 
     # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+    #- name: Run a multi-line script
+    #  run: |
+    #   echo Add other actions to build,
+    #     echo test, and deploy your project.
