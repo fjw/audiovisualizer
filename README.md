@@ -10,7 +10,7 @@ a small tool to render spectrograms (waterfall graphs) or waveforms from audio i
 
 ### npm
 
-```npm install @fjw/audiovisualizer```
+```npm i @fjw/audiovisualizer``
 
 ### Getting started
 
