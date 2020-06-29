@@ -1,5 +1,5 @@
 {
-  "name": "audiovisualizer",
+  "name": "@fjw/audiovisualizer",
   "version": "1.0.0",
   "description": "a small tool to render spectograms (waterfall graphs) or waveforms from audio in your browser",
   "main": "audiovisualizer.js",
@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/fjw/audiovisualizer/issues"
   },
-  "homepage": "https://github.com/fjw/audiovisualizer#readme"
+  "homepage": "https://github.com/fjw/audiovisualizer#readme",
+  "publishConfig": {
+      "registry": "https://npm.pkg.github.com/"
+  }
 }

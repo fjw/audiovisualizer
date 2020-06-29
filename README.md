@@ -8,6 +8,10 @@ a small tool to render spectrograms (waterfall graphs) or waveforms from audio i
 
 [Demo 2 (showing different config possibilities with audio tracks)](https://toolset.io/audiovisualizer/examples/customized.html)
 
+### npm
+
+```npm install @fjw/audiovisualizer```
+
 ### Getting started
 
 Initialise the AudioVisualizer object:
