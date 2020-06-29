@@ -1,6 +1,6 @@
 # audiovisualizer
 
-a small tool to render spectograms (waterfall graphs) or waveforms from audio in your browser
+a small tool to render spectrograms (waterfall graphs) or waveforms from audio in your browser
 
 ![audio visuals](examples/screenshot.png "audio visuals")
 
